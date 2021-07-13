@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS staging_songs (
 
 songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplays (
-    songplay_id BIGINT IDENTITY(0,1),
+    songplay_id BIGINT IDENTITY(0,1) not null,
     start_time timestamp,
     user_id int,
     level varchar,
@@ -63,7 +63,8 @@ CREATE TABLE IF NOT EXISTS songplays (
     artist_id varchar,
     session_id int,
     location varchar,
-    user_agent varchar)
+    user_agent varchar,
+    primary key(songplay_id))
 """)
 
 user_table_create = ("""
@@ -72,36 +73,40 @@ CREATE TABLE IF NOT EXISTS users (
     first_name varchar,
     last_name varchar,
     gender char(1),
-    level varchar)
+    level varchar,
+    primary key(user_id))
 """)
 
 song_table_create = ("""
 CREATE TABLE IF NOT EXISTS song (
     song_id varchar not null,
-    title varchar,
-    artist_id varchar,
+    title varchar not null,
+    artist_id varchar not null,
     year int,
-    duration float)
+    duration float,
+    primary key(song_id))
 """)
 
 artist_table_create = ("""
 CREATE TABLE IF NOT EXISTS artist (
     artist_id varchar not null,
-    name varchar,
+    name varchar not null,
     location varchar,
     latitude real,
-    longtitude real)
+    longtitude real,
+    primary key(artist_id))
 """)
 
 time_table_create = ("""
 CREATE TABLE IF NOT EXISTS time (
     start_time timestamp not null,
-    hour int,
-    day int,
-    week int,
-    month int,
-    year int,
-    weekday int)
+    hour int not null,
+    day int not null,
+    week int not null,
+    month int not null,
+    year int not null,
+    weekday int not null,
+    primary key(start_time))
 """)
 
 # STAGING TABLES
@@ -130,18 +135,19 @@ insert into songplays(start_time , user_id , level, song_id , artist_id , sessio
 select timestamp 'epoch' +  ts/1000   * interval '1 second' AS start_time, se.userid as user_id, se.level, ss.song_id , ss.artist_id , se.sessionid , se.location , se.useragent 
 from staging_events se 
 left join staging_songs ss on se.artist = ss.artist_name and se.song = ss.title 
+where se.page = 'NextSong'
 """)
 
 user_table_insert = ("""
 insert into users 
 select distinct userid , firstname as first_name, lastname as last_name, gender , "level" 
 from staging_events se 
-where se.auth = 'Logged In'
+where se.auth = 'Logged In' AND se.page = 'NextSong'
 """)
 
 song_table_insert = ("""
-insert into song 
-select song_id , title , artist_id , "year" , duration 
+insert  into song 
+select distinct song_id , title , artist_id , "year" , duration 
 from staging_songs ss 
 """)
 

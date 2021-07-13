@@ -8,19 +8,51 @@ This pipeline consists out of two main steps:
 
 
 
-## Process Steps
+### Using the ETL pipeline
 
+Requirements:
 
+- An AWS Account with Redshift and S3 access
+- Python 3.7 or greater
+- Python packages [psycopg2](https://pypi.org/project/psycopg2/) and [configparser](https://docs.python.org/3/library/configparser.html)
 
-### Reading the log data from S3
+Steps:
 
-First, we will connect to S3 to read the data provided by Sparkify. This consist out of both the log and song data stored as JSON files. We will save this information in 2 staging tables: STAGING_EVENTS & STAGING_SONGS
+1. **Enter your AWS Redshift connection details into the dwh.cfg file.** So that the script can connect to the database.
+2. **Run the create_tables.py script** to create the staging tables and the five fact and dimension tables
+3. **Run etl.py** to load the source data from S3 into the staging tables and then transform to to the five fact/dimension tables. 
 
-### Transform the data into a star-schema
+### ERD of the fact and dimension tables
 
 Using an ETL script, we will transform the staged data into a star schema for further analytics.  The schema contains the following fact and dimension tables:
 
 ![](Sparkify DWH.png)
+
+### Included files
+
+#### create_tables.py
+
+This is the first script that should be run, it will create the staging and fact.dimension tables on AWS Redshift.
+
+#### etl.py
+
+- This script will first load all data from S3 into both staging tables STAGING_EVENTS & STAGING_SONGS
+- After this the script will transform the staging data into songplays (fact), user (dimension), artist (dimension), song (dimension) and time (dimension) tables.
+- Only the logs where the page is equal to 'NextSong' will be copied to the fact and dimension tables.
+
+#### sql_queries.py
+
+This Python script contains all the SQL queries that will be executed on AWS Redshift, this script is invoked by create_tables.py and etl.py
+
+#### dwh.cfg
+
+This is a configuration file containing all the variables to connect to S3 and Redshift:
+
+- Redshift hostname
+- Database name and port
+- User & password
+- IAM Role ARN for connecting to S3
+- S3 links to log and song data
 
 ## Example queries:
 

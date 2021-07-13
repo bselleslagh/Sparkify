@@ -4,12 +4,18 @@ from sql_queries import create_table_queries, drop_table_queries
 
 
 def drop_tables(cur, conn):
+    '''
+    This function will drop the 7 tables if they already exist on Redshift
+    '''
     for query in drop_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def create_tables(cur, conn):
+    '''
+    Here we will create both staging tables and the five fact/dimension tables needed for the ETL process
+    '''
     for query in create_table_queries:
         print(query)
         cur.execute(query)
