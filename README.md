@@ -21,6 +21,8 @@ First, we will connect to S3 to read the data provided by Sparkify. This consist
 Using an ETL script, we will transform the staged data into a star schema for further analytics.  The schema contains the following fact and dimension tables:
 
 ![](Sparkify DWH.png)
+![Star schema ERD](Sparkify_ERD?raw=true "Sparkify ERD")
+
 
 ## Example queries:
 
